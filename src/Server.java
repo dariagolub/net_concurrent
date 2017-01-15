@@ -1,4 +1,6 @@
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -26,16 +28,17 @@ public class Server {
 
             System.out.println("Connection established with: " + socket.getInetAddress().getHostName() + ":" + socket.getPort());
             outputStream.writeUTF("Connection open");
-
-            while (true) {
-                String message = inputStream.readUTF();
+            String message = inputStream.readUTF();
+            while (!"exit".equalsIgnoreCase(message)) {
                 System.out.println("Client send me this message: " + message);
                 outputStream.writeUTF("Got your message: " + message);
+                message = inputStream.readUTF();
             }
-
+            outputStream.writeUTF("Connection closed");
+            System.out.println("Connection closed with : " + socket.getInetAddress().getHostName() + ":" + socket.getPort());
 
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Connection interrupted");
         }
 
 

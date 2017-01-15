@@ -34,11 +34,11 @@ public class Client {
             DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(System.in));
             String line;
-            while (true) {
+            do {
                 line = bufferedReader.readLine();
                 dos.writeUTF(line);
                 System.out.println(dis.readUTF());
-            }
+            } while (!"exit".equalsIgnoreCase(line));
 
         } catch (IOException e) {
             e.printStackTrace();
