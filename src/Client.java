@@ -40,8 +40,8 @@ public class Client {
                 System.out.println(dis.readUTF());
             } while (!"exit".equalsIgnoreCase(line));
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException | NullPointerException e) {
+            System.out.printf("Connection with server interrupted");
         } finally {
             if (socket != null) {
                 try {

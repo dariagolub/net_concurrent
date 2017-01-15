@@ -1,5 +1,3 @@
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -19,28 +17,22 @@ public class Server {
             return;
         }
 
+        ServerSocket serverSocket;
         try {
-            ServerSocket serverSocket = new ServerSocket(port);
-            Socket socket = serverSocket.accept();
-
-            DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-
-            System.out.println("Connection established with: " + socket.getInetAddress().getHostName() + ":" + socket.getPort());
-            outputStream.writeUTF("Connection open");
-            String message = inputStream.readUTF();
-            while (!"exit".equalsIgnoreCase(message)) {
-                System.out.println("Client send me this message: " + message);
-                outputStream.writeUTF("Got your message: " + message);
-                message = inputStream.readUTF();
-            }
-            outputStream.writeUTF("Connection closed");
-            System.out.println("Connection closed with : " + socket.getInetAddress().getHostName() + ":" + socket.getPort());
-
+            serverSocket = new ServerSocket(port);
         } catch (IOException e) {
-            System.out.println("Connection interrupted");
+            return;
         }
 
+        while (true) {
+            try {
+                Socket socket = serverSocket.accept();
+                Thread thread1 = new Thread(new Session(socket));
+                thread1.start();
+            } catch (IOException e) {
+                System.out.println("Connection interrupted");
+            }
+        }
 
     }
 }
