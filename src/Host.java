@@ -8,7 +8,7 @@ public class Host {
     private int maxSessionCount;
     private volatile int sessionCount = 0;
     private volatile boolean isAlive;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     public Host(int port, int maxSessions) {
         this.maxSessionCount = maxSessions;
