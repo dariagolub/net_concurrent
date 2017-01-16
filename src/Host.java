@@ -7,6 +7,7 @@ public class Host {
     private ServerSocket serverSocket;
     private int maxSessionCount;
     private volatile int sessionCount = 0;
+    private volatile boolean isAlive;
 
     public Host(int port, int maxSessions) {
         this.maxSessionCount = maxSessions;
@@ -18,7 +19,11 @@ public class Host {
     }
 
     public void start() {
-        while (true) {
+        if (isAlive) {
+            throw new IllegalStateException("WHY ARE YOU DOING THIS?!");
+        }
+        this.isAlive = true;
+        while (isAlive) {
             try {
                 Socket socket = serverSocket.accept();
                 DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
@@ -30,8 +35,20 @@ public class Host {
                 Thread thread1 = new Thread(new Session(socket, this));
                 thread1.start();
             } catch (IOException e) {
-                System.out.println("Connection interrupted");
+                close();
             }
+        }
+    }
+
+    private void close() {
+        if (isAlive) {
+            isAlive = false;
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Host is down");
         }
     }
 
