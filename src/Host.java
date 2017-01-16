@@ -8,6 +8,7 @@ public class Host {
     private int maxSessionCount;
     private volatile int sessionCount = 0;
     private volatile boolean isAlive;
+    private Object lock = new Object();
 
     public Host(int port, int maxSessions) {
         this.maxSessionCount = maxSessions;
@@ -31,7 +32,9 @@ public class Host {
                     dos.writeUTF("Sorry, server too busy. Please try later");
                     socket.close();
                 }
-                sessionCount++;
+                synchronized (lock) {
+                    sessionCount++;
+                }
                 Thread thread1 = new Thread(new Session(socket, this));
                 thread1.start();
             } catch (IOException e) {
@@ -52,7 +55,9 @@ public class Host {
         }
     }
 
-    public synchronized void closeSession() {
-        sessionCount--;
+    public void closeSession() {
+        synchronized (lock) {
+            sessionCount--;
+        }
     }
 }
