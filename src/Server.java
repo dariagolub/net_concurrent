@@ -1,7 +1,3 @@
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.net.Socket;
-
 public class Server {
 
     public static void main(String[] args) {
@@ -17,22 +13,8 @@ public class Server {
             return;
         }
 
-        ServerSocket serverSocket;
-        try {
-            serverSocket = new ServerSocket(port);
-        } catch (IOException e) {
-            return;
-        }
-
-        while (true) {
-            try {
-                Socket socket = serverSocket.accept();
-                Thread thread1 = new Thread(new Session(socket));
-                thread1.start();
-            } catch (IOException e) {
-                System.out.println("Connection interrupted");
-            }
-        }
+        Host host = new Host(port, 2);
+        host.start();
 
     }
 }
