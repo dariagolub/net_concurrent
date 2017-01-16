@@ -52,7 +52,7 @@ public class Host {
         }
     }
 
-    public void closeSession() {
+    public synchronized void closeSession() {
         sessionCount--;
     }
 }
