@@ -6,7 +6,7 @@ import java.net.Socket;
 public class Host {
     private ServerSocket serverSocket;
     private int maxSessionCount;
-    private int sessionCount = 0;
+    private volatile int sessionCount = 0;
 
     public Host(int port, int maxSessions) {
         this.maxSessionCount = maxSessions;
