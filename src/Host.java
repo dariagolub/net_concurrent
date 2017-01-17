@@ -1,42 +1,53 @@
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class Host {
+public class Host implements Runnable {
     private ServerSocket serverSocket;
     private int maxSessionCount;
     private volatile int sessionCount = 0;
     private volatile boolean isAlive;
+    private final Channel<Runnable> channel;
+    private Thread thread;
     private final Object lock = new Object();
 
-    public Host(int port, int maxSessions) {
+    public Host(int port, Channel<Runnable> channel, int maxSessions) {
         this.maxSessionCount = maxSessions;
         try {
             this.serverSocket = new ServerSocket(port);
         } catch (IOException e) {
             System.out.println("Can't start server. Port: " + port);
         }
+        this.channel = channel;
     }
 
     public void start() {
-        if (isAlive) {
-            throw new IllegalStateException("WHY ARE YOU DOING THIS?!");
-        }
+        thread = new Thread(this);
+        if (isAlive)
+            throw new IllegalStateException("Host already started");
         this.isAlive = true;
+        thread.start();
+        System.out.println("Host has started");
+    }
+
+    @Override
+    public void run() {
         while (isAlive) {
+            Socket socket;
             try {
-                Socket socket = serverSocket.accept();
-                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                if (sessionCount == maxSessionCount) {
-                    dos.writeUTF("Sorry, server too busy. Please try later");
-                    socket.close();
-                }
                 synchronized (lock) {
+                    socket = serverSocket.accept();
+                    while (sessionCount == maxSessionCount) {
+                        try {
+                            lock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                     sessionCount++;
                 }
-                Thread thread1 = new Thread(new Session(socket, this));
-                thread1.start();
+                channel.put(new Session(socket, this));
             } catch (IOException e) {
                 close();
             }
@@ -58,6 +69,7 @@ public class Host {
     public void closeSession() {
         synchronized (lock) {
             sessionCount--;
+            lock.notifyAll();
         }
     }
 }

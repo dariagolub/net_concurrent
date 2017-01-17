@@ -13,8 +13,11 @@ public class Server {
             return;
         }
 
-        Host host = new Host(port, 2);
+        Channel<Runnable> channel = new Channel<>(2);
+        Host host = new Host(port, channel, 2);
         host.start();
+        Dispatcher dispatcher = new Dispatcher(channel);
+        dispatcher.start();
 
     }
 }
