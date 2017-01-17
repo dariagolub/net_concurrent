@@ -13,11 +13,10 @@ public class Server {
             return;
         }
 
-        Channel<Task> channel = new Channel<>(2);
-        Host host = new Host(port, channel);
+        Channel<Runnable> channel = new Channel<>(2);
+        Host host = new Host(port, channel, 2);
         host.start();
-        ThreadPool threadPool = new ThreadPool(2);
-        Dispatcher dispatcher = new Dispatcher(channel, threadPool);
+        Dispatcher dispatcher = new Dispatcher(channel);
         dispatcher.start();
 
     }

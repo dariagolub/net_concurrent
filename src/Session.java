@@ -3,11 +3,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class Session implements Task {
+public class Session implements Runnable {
     private final Socket socket;
+    private final Host host;
 
-    public Session(Socket socket) {
+    public Session(Socket socket, Host host) {
         this.socket = socket;
+        this.host = host;
     }
 
     @Override
@@ -28,19 +30,8 @@ public class Session implements Task {
             System.out.println("Connection closed with : " + socket.getInetAddress().getHostName() + ":" + socket.getPort());
         } catch (IOException e) {
             System.out.println("Connection with " + socket.getPort() + " is interrupted");
-        }
-    }
-
-    @Override
-    public void stop() {
-        if (socket != null) {
-            try {
-                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-                dos.writeUTF("Server is closed");
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        } finally {
+            host.closeSession();
         }
     }
 }
