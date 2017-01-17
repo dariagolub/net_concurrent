@@ -35,4 +35,10 @@ public class ThreadPool {
         freeWorkers.put(workerThread);
     }
 
+    public void stop() {
+        for (WorkerThread worker : allWorkers) {
+            worker.stop();
+            System.out.println("ThreadPool stopped");
+        }
+    }
 }

@@ -31,4 +31,16 @@ public class Session implements Task {
         }
     }
 
+    @Override
+    public void stop() {
+        if (socket != null) {
+            try {
+                DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
+                dos.writeUTF("Server was stopped");
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

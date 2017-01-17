@@ -20,5 +20,13 @@ public class Server {
         Dispatcher dispatcher = new Dispatcher(channel, threadPool);
         dispatcher.start();
 
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("Start shutdown sequence");
+            host.stop();
+            dispatcher.stop();
+            threadPool.stop();
+        }));
+
     }
 }

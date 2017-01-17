@@ -52,4 +52,13 @@ public class WorkerThread implements Task {
             lock.notify();
         }
     }
+
+    @Override
+    public void stop() {
+        isActive = false;
+        thread.interrupt();
+        if (currentTask != null){
+            currentTask.stop();
+        }
+    }
 }

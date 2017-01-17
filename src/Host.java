@@ -51,4 +51,16 @@ public class Host implements Runnable {
         }
     }
 
+    public void stop() {
+        if (isAlive) {
+            isAlive = false;
+            thread.interrupt();
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            System.out.println("Host stopped");
+        }
+    }
 }

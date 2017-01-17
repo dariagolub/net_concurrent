@@ -29,4 +29,18 @@ public class Dispatcher implements Runnable {
         }
     }
 
+    public void stop() {
+        if (isActive) {
+            isActive = false;
+            threadPool.stop();
+            while (channel.size() > 0)
+                try {
+                    channel.get().stop();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            thread.interrupt();
+            System.out.println("Dispatcher stopped");
+        }
+    }
 }
