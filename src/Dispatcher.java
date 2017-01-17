@@ -1,10 +1,12 @@
 public class Dispatcher implements Runnable {
-    private final Channel<Runnable> channel;
+    private final Channel<Task> channel;
     private volatile boolean isActive;
     private Thread thread;
+    private final ThreadPool threadPool;
 
-    public Dispatcher(Channel<Runnable> channel) {
+    public Dispatcher(Channel<Task> channel, ThreadPool threadPool) {
         this.channel = channel;
+        this.threadPool = threadPool;
     }
 
     public void start() {
@@ -18,10 +20,7 @@ public class Dispatcher implements Runnable {
     public void run() {
         while (isActive) {
             try {
-                Runnable task = channel.get();
-                Thread thread = new Thread(task);
-                thread.start();
-
+                threadPool.execute(channel.get());
             } catch (InterruptedException e) {
                 if (!isActive) {
                     return;

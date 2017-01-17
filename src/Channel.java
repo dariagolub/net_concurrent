@@ -36,4 +36,10 @@ public class Channel<T> {
         }
     }
 
+    public int size() {
+        synchronized (lock) {
+            return queue.size();
+        }
+    }
+
 }

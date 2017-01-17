@@ -4,15 +4,11 @@ import java.net.Socket;
 
 public class Host implements Runnable {
     private ServerSocket serverSocket;
-    private int maxSessionCount;
-    private volatile int sessionCount = 0;
     private volatile boolean isAlive;
-    private final Channel<Runnable> channel;
+    private final Channel<Task> channel;
     private Thread thread;
-    private final Object lock = new Object();
 
-    public Host(int port, Channel<Runnable> channel, int maxSessions) {
-        this.maxSessionCount = maxSessions;
+    public Host(int port, Channel<Task> channel) {
         try {
             this.serverSocket = new ServerSocket(port);
         } catch (IOException e) {
@@ -35,19 +31,8 @@ public class Host implements Runnable {
         while (isAlive) {
             Socket socket;
             try {
-                synchronized (lock) {
-                    socket = serverSocket.accept();
-                    while (sessionCount == maxSessionCount) {
-                        try {
-                            lock.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    sessionCount++;
-                }
-                channel.put(new Session(socket, this));
+                socket = serverSocket.accept();
+                channel.put(new Session(socket));
             } catch (IOException e) {
                 close();
             }
@@ -66,10 +51,4 @@ public class Host implements Runnable {
         }
     }
 
-    public void closeSession() {
-        synchronized (lock) {
-            sessionCount--;
-            lock.notifyAll();
-        }
-    }
 }
